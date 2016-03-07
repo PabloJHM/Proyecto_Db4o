@@ -63,10 +63,6 @@ public class Servicio extends Service implements GoogleApiClient.ConnectionCallb
     }
 
     @Override
-    public void onDestroy() {
-    }
-
-    @Override
     public void onConnected(Bundle bundle) {
         peticionLocalizaciones = new LocationRequest();
         peticionLocalizaciones.setFastestInterval(5000);
@@ -80,6 +76,7 @@ public class Servicio extends Service implements GoogleApiClient.ConnectionCallb
 
     }
 
+    //Cuando cambie la localización guardaremos el nuevo punto en la db4o
     @Override
     public void onLocationChanged(Location location) {
         bd = new Db4O(this);
@@ -99,4 +96,7 @@ public class Servicio extends Service implements GoogleApiClient.ConnectionCallb
                 (this).addApi(LocationServices.API).build();
         cliente.connect();
     }
+
+    @Override
+    public void onDestroy() {}
 }

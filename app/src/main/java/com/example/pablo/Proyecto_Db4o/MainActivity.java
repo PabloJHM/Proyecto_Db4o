@@ -43,9 +43,20 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        LanzadorServicio lanzadorServicio =new LanzadorServicio();
+        //Lanzamos el servicio aquí para que al instalarse por primera vez la aplicación el servicio empieze a funcionar
+        RocketServicio lanzadorServicio =new RocketServicio();
         lanzadorServicio.execute();
 
+    }
+
+    //Hebra donde se lanza el servicio
+    private class RocketServicio extends AsyncTask<Void, Integer, Boolean> {
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            Intent serviceIntent = new Intent(getBaseContext(),Servicio.class);
+            getBaseContext().startService(serviceIntent);
+            return true;
+        }
     }
 
     @Override
@@ -63,9 +74,12 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         return super.onOptionsItemSelected(item);
     }
 
+    //Una vez el mapa está listo, recorremos la base de datos y guardamos en una lista las posiciones
+    // que luego añadiremos al mapa a través de un Polyline. Otra forma podría haber sido usando
+    // los métodos que usamos en el proyecto de canvas, creando un nuevo lienzo sobre el que pintar
+    // en vez de pintar sobre el mismo mapa.
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
         bd=new Db4O(this);
         mMap = googleMap;
         PolylineOptions localizaciones = new PolylineOptions();
@@ -85,16 +99,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         bd.close();
     }
 
-
-    private class LanzadorServicio extends AsyncTask<Void, Integer, Boolean> {
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            Intent serviceIntent = new Intent(getBaseContext(),Servicio.class);
-            getBaseContext().startService(serviceIntent);
-            return true;
-        }
-    }
-
     @Override
     public void onConnected(Bundle bundle) {
         peticionLocalizaciones = new LocationRequest();
@@ -102,11 +106,6 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         peticionLocalizaciones.setSmallestDisplacement(1);
         peticionLocalizaciones.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         LocationServices.FusedLocationApi.requestLocationUpdates(cliente, peticionLocalizaciones, (com.google.android.gms.location.LocationListener) this);
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
     }
 
     @Override
@@ -122,12 +121,13 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         }
     }
 
+    //Cada vez que se cambie la posición redibujará la linea con el nuevo punto que obtenemos del servicio
     @Override
     public void onLocationChanged(Location location) {
-       mMap.clear();
+        mMap.clear();
         bd=new Db4O(this);
         PolylineOptions rectOptions = new PolylineOptions();
-        rectOptions.color(Color.parseColor("#0040FF"));
+        rectOptions.color(Color.parseColor("#52d053"));
         rectOptions.width(4);
         rectOptions.visible(true);
         List<Posicion> posicionList = bd.getConsulta();
@@ -138,25 +138,22 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             for (Posicion p : posicionList) {
                 rectOptions.add(new LatLng(p.getLatitud(), p.getLongitud()));
             }
-
             mMap.addPolyline(rectOptions);
         }
         bd.close();
     }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
+    public void onConnectionSuspended(int i) {}
 
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
 
     @Override
-    public void onProviderDisabled(String provider) {
+    public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-    }
+    @Override
+    public void onProviderEnabled(String provider) {}
+
+    @Override
+    public void onProviderDisabled(String provider) {}
 }
 
