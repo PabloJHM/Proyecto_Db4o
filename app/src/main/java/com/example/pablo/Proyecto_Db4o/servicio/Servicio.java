@@ -51,10 +51,10 @@ public class Servicio extends Service implements GoogleApiClient.ConnectionCallb
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        System.out.println("Servicio iniciado");
+        Log.v("XXX","Servicio iniciado");
         Intent i=new Intent(Servicio.this, Servicio.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        Notification.Builder constructorNotificacion = new Notification.Builder(Servicio.this).setSmallIcon(R.drawable.common_plus_signin_btn_icon_light_normal).setContentTitle("GPS Servicio Activo").setContentText("Servicio Activado").setContentIntent(
+        Notification.Builder constructorNotificacion = new Notification.Builder(Servicio.this).setSmallIcon(R.drawable.common_plus_signin_btn_icon_light_normal).setContentTitle(getString(R.string.tituloServicio)).setContentText(getString(R.string.textServicio)).setContentIntent(
                 PendingIntent.getActivity(Servicio.this, 0, i, 0));
         NotificationManager gestorNotificacion = (NotificationManager)getSystemService(Servicio.this.NOTIFICATION_SERVICE);
         startForeground(1, constructorNotificacion.build());
