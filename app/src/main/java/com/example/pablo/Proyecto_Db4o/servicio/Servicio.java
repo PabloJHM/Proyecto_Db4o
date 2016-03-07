@@ -24,6 +24,7 @@ import java.util.Date;
 
 public class Servicio extends Service implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, com.google.android.gms.location.LocationListener{
+    //El servicio también se lanza al encenderse el movil
     private GoogleApiClient cliente;
     private LocationRequest peticionLocalizaciones;
     private Posicion position;
